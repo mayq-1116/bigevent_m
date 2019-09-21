@@ -10,15 +10,22 @@ var user = {
      */
     login: function (userName, userPwd, callBack) {
         // 发送ajax请求
-        $.post('http://localhost:8000/admin/login', { user_name: userName, password: userPwd }, function (res) {
+        $.post(URLList.admin_login, { user_name: userName, password: userPwd }, function (res) {
             callBack(res);
         })
     },
     
     //退出功能
     logout: function(callBack) {
-        $.post('http://localhost:8000/admin/logout',function(res) {
+        $.post(URLList.admin_logout,function(res) {
             callBack(res);
         })
+    },
+
+    //获取管理员信息
+    adminID: function(callBack) {
+        $.get(URLList.admin_ID,function(res) {
+            callBack(res);
+        } )
     }
 }
