@@ -25,11 +25,44 @@
                 <i class="iconfont icon-key"></i>
                 <input type="text" class="input_txt" placeholder="邮箱/手机号">
                 <input type="password" class="input_pass" placeholder="密码">
-                <input type="submit" class="input_sub" value="登 录">
+                <input type="button"" class=" input_sub" value="登 录">
             </form>
         </div>
 
-    </div> 
+    </div>
+
+
+    <script src="./js/jquery-1.12.4.min.js"></script>
+    <script>
+        // 设置用户名密码登陆验证功能
+        // 1.给按钮添加点击事件
+        $('.input_sub').click(function () {
+            // 2. 收集用户信息,判断
+            //获取用户名与密码的值
+            var userName = $('.input_txt').val();
+            var userPwd = $('.input_pass').val();
+            console.log(userName, userPwd);
+            //判断账号密码为空时,提示用户输入
+            if (userName == '' || userPwd == '') {
+                alert('请输入用户名与密码')
+            } else {
+                // 3. 发送ajax请求事件
+                $.post('http://localhost:8000/admin/login',{user_name:userName,password:userPwd},function(res) {
+                    console.log(res);
+                    //当返回值code为200时,登陆成功
+                    if(res.code === 200) {
+                        alert(res.msg)
+                    }else {
+                        alert(res.msg)
+                    }
+                } )
+
+                // 4. 拿到返回值后处理后续
+            }
+
+
+        })
+    </script>
 
 </body>
 
