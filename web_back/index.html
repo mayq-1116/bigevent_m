@@ -44,7 +44,7 @@
         <div class="user_center_link">
             <a href="user.html" onclick="setMenu(3,0)" target="main_frame">个人中心</a>
             <img src="images/2.jpg" alt="person">
-            <a href="#"><i class="iconfont icon-tuichu"></i> 退出</a>
+            <a href="JavaScript:;" id="adminLogOut"><i class="iconfont icon-tuichu" ></i> 退出</a>
         </div>
     </div>
 
@@ -104,5 +104,19 @@
 
     </script>
 
+    <script src="./js/utils/user.js"></script>
+    <!-- 设置管理员系统退出功能 -->
+    <script> 
+        $('#adminLogOut').click(function() {
+            user.logout(function(res) {
+                console.log(res);
+                if(window.confirm('是否确认退出?')) {
+                    if(res.msg == 200) {
+                        window.location.href = './login.html';
+                    }
+                }
+            })  
+        })
+    </script>
 </body>
 </html>
