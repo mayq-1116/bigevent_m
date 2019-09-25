@@ -39,12 +39,12 @@
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章类别：</label>
                     <div class="col-sm-4">
-                        <select class="form-control">
-                            <option>1</option>
+                        <select class="form-control" id="category_type">
+                            <!-- <option>1</option>
                             <option>2</option>
                             <option>3</option>
                             <option>4</option>
-                            <option>5</option>
+                            <option>5</option> -->
                         </select>
                     </div>
                 </div>
@@ -79,6 +79,32 @@
             </form>
         </div>
     </div>
+
+    <script src="./js/utils/config.js"></script>
+    <script src="./js/utils/category.js"></script>
+    <script src="./js/template-web.js"></script>
+
+    <!-- 通过模板引擎将数据显示类别分类中 -->
+    <script id="tmp" type="text/html">
+        {{each  data eml}}
+        <option>{{eml.name}} </option>
+        {{/each}}
+    </script>
+
+    <script>
+        //类别分类显示
+        $(function () {
+            category.category_show(function (res) {
+                console.log(res);
+                //如果返回code=200,显示在类别分类中
+                if (res.code === 200) {
+                    // 使用模板引擎,渲染数据
+                    $('#category_type').html(template('tmp',res));
+
+                }
+            })
+        })
+    </script>
 
 </body>
 

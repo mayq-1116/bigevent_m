@@ -72,7 +72,7 @@
                 <tfoot>
                     <tr>
                         <td colspan="3" class="text-center">
-                            <a href="#" class="btn btn-success" data-toggle="modal" data-target="#addModal">新增分类</a>
+                            <a href="#" class="btn btn-success" data-toggle="modal" data-target="#addModal" id="newAdd_category">新增分类</a>
                         </td>
                     </tr>
                 </tfoot>
@@ -85,18 +85,25 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
-                    <h4 class="modal-title">新增分类</h4>
+                    <h4 class="modal-title" id="category_add_edit">新增分类</h4>
                 </div>
                 <div class="modal-body">
                     <form>
+                        <input type="hidden" class="form-control" id="category_id">
+
                         <div class="form-group">
-                            <label for="recipient-name" class="control-label">分类名称:</label>
-                            <input type="text" class="form-control" id="recipient-name">
+                            <label for="category_name" class="control-label">分类名称:</label>
+                            <input type="text" class="form-control" id="category_name">
                         </div>
                         <div class="form-group">
-                            <label for="message-text" class="control-label">分类别名:</label>
-                            <input type="text" class="form-control" id="recipient-name">
+                            <label for="category_slug" class="control-label">分类别名:</label>
+                            <input type="text" class="form-control" id="category_slug">
                         </div>
+                        <!-- 添加bootstrap提示效果 -->
+                        <div class="alert alert-info" role="alert" id="divHint" style="display: none">
+
+                        </div>
+
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -107,29 +114,29 @@
         </div>
     </div>
 
-    <!-- <script>
+    <script>
         $('#addModal').modal({
             show: false,
             backdrop: false
         });
 
         $('#model_shutoff').click(function () {
-            alert('shutoff');
+            // alert('shutoff');
             $('#addModal').modal('hide');
         });
 
-        $('#model_add').click(function () {
-            alert('add');
-            $('#addModal').modal('hide');
-        });
+        // $('#model_add').click(function () {
+        //     // alert('add');
+        //     // $('#addModal').modal('hide'); 
+        // });
 
-        $('.category_table').delegate('a', 'click', function () {
-            if ($(this).hasClass('btn-info')) {
-                $('#addModal .modal-title').html('修改分类名称');
-                $('#addModal').modal('show');
-            }
-        })
-    </script> -->
+        // $('.category_table').delegate('a', 'click', function () {
+        //     if ($(this).hasClass('btn-info')) {
+        //         $('#addModal .modal-title').html('修改分类名称');
+        //         $('#addModal').modal('show');
+        //     }
+        // })
+    </script>
 
     <script src="./js/utils/config.js"></script>
     <script src="./js/utils/category.js"></script>
@@ -138,31 +145,130 @@
     <!-- 定义模板 -->
     <script id="tmp" type="text/html">
         <!-- 循环each  data=res.data elm=res的内容 -->
-    {{each data elm}}
-        <tr>
-            <!-- elm.name = res.data.name  -->
-            <td>{{elm.name}}</td>
-            <!-- elm.name = res.data.slug  -->
-            <td>{{elm.slug}}</td>      
-            <td class="text-center">
-                <a href="javascript:editTr({&quot;id&quot;:&quot;1&quot;,&quot;slug&quot;:&quot;uncategorized&quot;,&quot;name&quot;:&quot;未分类&quot;});"
-                    class="btn btn-info btn-xs">编辑</a>
-                <a href="javascript:deleteTr( 1 );" class="btn btn-danger btn-xs">删除</a>
-            </td>
-        </tr>
+        {{each data elm}}
+    <tr>
+        <!-- elm.name = res.data.name  -->
+        <td>{{elm.name}}</td>
+        <!-- elm.name = res.data.slug  -->
+        <td>{{elm.slug}}</td>
+        <td class="text-center">
+            <a data-name="{{elm.name}}" data-slug="{{elm.slug}} "
+                href="javascript:editTr({&quot;id&quot;:&quot;{{elm.id}}&quot;,&quot;slug&quot;:&quot;{{elm.slug}}&quot;,&quot;name&quot;:&quot;{{elm.name}}&quot;});"
+                class="btn btn-info btn-xs">编辑</a>
+            <a href="javascript:deleteTr( {{elm.id}} );" class="btn btn-danger btn-xs">删除</a>
+        </td>
+    </tr>
     {{/each}}
     </script>
     <script>
-        //1. 类别管理查看功能
-        category.category_show(function (res) { //通过show方法取出数据
+        //设置一个全局变量,表示当前操作状态是添加还是修改
+        var status = '添加';
+
+        //  类别管理查看功能
+        function doQuery(res) {
+            category.category_show(function (res) { //通过show方法取出数据
+                // console.log(res);
+                //将数据拼接字符串显示在html界面
+                // var htmlStr = template('tmp', res); 
+                // console.log(htmlStr);
+
+                //将内容显示在页面
+                $('#category_content').html(template('tmp', res));
+            });
+        }
+
+        //设置删除按钮函数功能
+        function deleteTr(id) {
+            //如果点击删除触发该功能,弹出提示是否删除,true(确认)
+            if (window.confirm('是否确认删除?')) {
+                // 确认后发送ajax请求,删除对应id的数据
+                category.category_del(id, function (res) {
+                    console.log(res);
+                    //当接口code=200时,删除成功,调用显示内容功能(刷新)
+                    if (res.code == 200) {
+                        doQuery();
+                    }
+
+                })
+            }
+
+        }
+
+        //当页面加载时,执行显示功能
+        $(function () {
+            doQuery();
+        })
+
+        //编辑功能
+        function editTr(obj) {
+            $('#addModal').modal('show');
+            $('#category_add_edit').html('修改类别');
+            $('#model_add').text('保存修改');
+
+            status = '编辑';
+            // console.log(obj);
+            //给文本框赋值 
+            $('#category_id').val(obj.id);
+            $('#category_name').val(obj.name);
+            $('#category_slug').val(obj.slug);
+        }
+
+        //新增分类
+        $('#newAdd_category').click(function () {
+            $('#category_name').val('');
+            $('#category_slug').val('');
+            status = '添加';
+            $('#category_add_edit').html('新增分类');
+            $('#addModal #model_add').text('新增');
+            $('#divHint').hide();
+        })
+
+        //类别管理新增功能,注册新增点击事件
+        $('#model_add').click(function () {
             // console.log(res);
-            //将数据拼接字符串显示在html界面
-            // var htmlStr = template('tmp', res); 
-            // console.log(htmlStr);
+            //获取用户数据,判断结果
+            var category_name = $('#category_name').val();
+            var category_slug = $('#category_slug').val();
+            console.log(category_name, category_slug);
+
             
-            //将内容显示在页面
-            $('#category_content').html(template('tmp', res));
-        });
+
+            // 判断用户输入内容为空时,提示
+            if (category_name === "" || category_slug == "") {
+                $('#divHint').text('请输入需要添加的内容');
+                $('#divHint').show();
+            } else {
+                //判断是否点击添加
+                if (status === '添加') {
+                    category.category_add(category_name, category_slug, function (res) {
+
+                        // console.log(res);
+                        //当code=200时,正常添加并调用显示功能
+                        if (res.code === 200) {
+                            $('#addModal').modal('hide');
+                            doQuery();
+
+                        } else {
+                            $('#divHint').show().text(res.msg);                           
+                        }
+                    });
+                } else { //修改
+                    var id = $('#category_id').val();
+                    category.category_edit(id, category_name, category_slug, function (res) {
+
+                        if (res.code == 200) {
+                            $('#addModal').modal('hide');
+                            doQuery();
+
+                        } else {
+                            $('#divHint').show().text(res.msg);
+
+                        }
+                    })
+                }
+
+            }
+        })
     </script>
 </body>
 

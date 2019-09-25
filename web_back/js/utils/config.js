@@ -9,4 +9,12 @@ var URLList = {
 
     //类别管理显示
     category_show: 'http://localhost:8000/admin/category_search',
+    //类别管理新增
+    category_add: 'http://localhost:8000/admin/category_add',
+    //删除文章类别
+    category_del: 'http://localhost:8000/admin/category_delete',
+    //编辑类别
+    category_edit: 'http://localhost:8000/admin/category_edit',
+
+    
 }
