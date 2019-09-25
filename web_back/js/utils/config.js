@@ -20,5 +20,6 @@ var URLList = {
     articleList_show: 'http://localhost:8000/admin/search',
     //删除文章
     articleList_del: 'http://localhost:8000/admin/article_delete',
-
+    //发布文章
+    release_content: 'http://localhost:8000/admin/article_publish',
 }
