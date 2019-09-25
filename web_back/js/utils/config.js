@@ -16,5 +16,7 @@ var URLList = {
     //编辑类别
     category_edit: 'http://localhost:8000/admin/category_edit',
 
-    
+    //文字列表显示
+    articleList_show: 'http://localhost:8000/admin/search',
+
 }
