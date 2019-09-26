@@ -74,7 +74,7 @@
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
                         <button type="button" class="btn btn-success" id="btnAdd">发布</button>
-                        <button type="submit" class="btn btn-default">存为草稿</button>
+                        <button type="submit" class="btn btn-default" id="btnAdd2">存为草稿</button>
                     </div>
                 </div>
             </form>
@@ -113,6 +113,30 @@
 
                 //无法在表单中获取state状态,通过代码动态添加
                 fd.append('state', '已发布');
+                //通过富文本编辑器 tinyMCE 方法获取当前文章的内容   
+                fd.set('content', tinyMCE.activeEditor.getContent());
+
+                //发送ajax请求服务器数据 
+                articleList.add(fd, function (res) {
+                    if (res.code === 201) {
+                        // 清空内容
+                        $('#article_title').val('');
+
+                        $('#divResult').hide().text('');
+                        // 发布成功后跳转页面
+                        window.location.href = './article_list.html';
+                    } else {
+                        $('#divResult').show().text(res.msg);
+                    }
+                });
+            })
+
+
+            $('#btnAdd2').click(function () {
+                var fd = new FormData($('#myform')[0]);
+
+                //无法在表单中获取state状态,通过代码动态添加
+                fd.append('state', '草稿');
                 //通过富文本编辑器 tinyMCE 方法获取当前文章的内容   
                 fd.set('content', tinyMCE.activeEditor.getContent());
 

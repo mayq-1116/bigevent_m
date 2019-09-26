@@ -1,4 +1,4 @@
-//管理员模块: 文字列表
+//管理员模块: 文章列表系统
 
 var articleList = {
     //列表显示
@@ -31,5 +31,20 @@ var articleList = {
                 callBack(res);
             }
         })
+    },
+
+    //编辑文章
+    edit: function (fd, callBack) {
+        $.ajax({
+            url: URLList.release_edit,
+            type: 'post',
+            data: fd,
+            processData: false,  //让jQuery不要处理数据,无法处理此对象
+            contentType: false,  //不要设置请求头,FormData自带请求头
+            success: function (res) {
+                callBack(res);
+            }
+        })
     }
+
 }

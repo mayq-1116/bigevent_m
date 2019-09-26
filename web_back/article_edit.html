@@ -23,29 +23,29 @@
             文章编辑
         </div>
         <div class="container-fluid common_con">
-            <form class="form-horizontal article_form">
+            <form class="form-horizontal article_form" id="myform">
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章标题：</label>
                     <div class="col-sm-10">
-                        <input type="email" class="form-control" id="inputEmail3" value="文章标题文字">
+                        <input type="text" name="title" class="form-control" id="article_title" value="文章标题文字">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputPassword3" class="col-sm-2 control-label">文章封面：</label>
                     <div class="col-sm-10">
-                        <img src="images/pic06.jpg" class="article_cover">
-                        <input type="file" id="exampleInputFile">
+                        <img src="images/pic06.jpg" class="article_cover" id="article_cover">
+                        <input type="file" id="exampleInputFile" name="cover">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章类别：</label>
                     <div class="col-sm-4">
-                        <select class="form-control">
-                            <option>类别一</option>
+                        <select class="form-control" name="type" id="article_type">
+                            <!-- <option>类别一</option>
                             <option>类别二</option>
                             <option>类别三</option>
                             <option selected>类别四</option>
-                            <option>类别五</option>
+                            <option>类别五</option> -->
                         </select>
                     </div>
                 </div>
@@ -54,7 +54,7 @@
                     <div class="col-sm-4">
 
                         <div class="input-group">
-                            <input type="text" class="form-control" value="2019-05-17" id="dateinput">
+                            <input type="text" class="form-control" value="2019-05-17" id="dateinput" name="date">
                             <span class="input-group-btn">
                                 <button class="btn btn-default" type="button"
                                     onclick="jeDate('#dateinput',{trigger:false,format: 'YYYY-MM-DD'})"><i
@@ -66,17 +66,118 @@
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章内容：</label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" id="rich_content" name="content" placeholder="文章内容" value="文章内容">
+                        <input type="text" class="form-control" id="rich_content" name="content" placeholder="文章内容"
+                            value="文章内容">
                     </div>
                 </div>
+                <div class="alert alert-info" role="alert" id="divHint" style="display: none"></div>
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
-                        <button type="submit" class="btn btn-success">修改</button>
+                        <button type="button" class="btn btn-success" id="benSave">修改</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
+
+    <script src="./js/utils/config.js"></script>
+    <script src="./js/utils/article_list.js"></script>
+    <script src="./js/utils/category.js"></script>
+    <script src="./js/template-web.js"></script>
+
+    <script id="tmp_type" type="text/html">
+        {{each data eml}}
+        <option value="{{eml.id}}">{{eml.name}}</option>
+        {{/each}}
+    </script>
+
+    <script>
+        $(function () {
+            //  1) 获取地址栏id值
+            function formaToObj(str) {
+                var obj = {};
+                //以&分割 
+                var arr = str.split('&');
+                //arr = ['id=273']
+                arr.forEach(function (item) {
+                    var arr1 = item.split('='); //['id','273']
+                    obj[arr1[0]] = arr1[1];
+                });
+                return obj;
+            }
+            //将地址中?去除
+            var str = window.location.search.replace('?', '');
+            var obj = formaToObj(str);
+            // console.log(obj);
+            var id = obj.id;
+            // console.log(id);
+
+            // 1. 获取当前文字信息内容,并显示在页面中
+            getAndShow(id);
+
+            // 2. 保存编辑修改的内容
+            $('#benSave').click(function () {
+                // 取表单中的数据
+                var fd = new FormData($('#myform')[0]);
+
+                // 将id传入
+                fd.append('id',id);
+                //将内容传入
+                fd.set('content',tinyMCE.activeEditor.getContent())
+
+                articleList.edit(fd, function (res) {
+                    console.log(res);
+                    if(res.code === 200) {
+                        //提示修改成功
+                        $('#divHint').show().text(res.msg);
+                        setTimeout(function() {
+                            window.location.href = './article_list.html';
+                        }, 1000);
+                    }else {
+                        //提示修改失败
+                        $('#divHint').show().text(res.msg);
+                    }
+                })
+            })
+
+
+            // 将显示功能封装
+            function getAndShow(id) {
+                //判断id是否为数字
+                if (isNaN(id)) {
+                    alert('id错误');
+                } else {
+                    // 2) 发ajax请求
+                    articleList.show({
+                        id: id
+                    }, function (res) {
+                        var type = res.data.type;
+                        // console.log(type);
+                        if (res.code === 200) {
+                            //获取文章类别,显示在页面中
+                            category.category_show(function (res) {
+                                console.log(res);
+                                if (res.code === 200) {
+                                    // 将引擎模板渲染到页面类别中
+                                    $('#article_type').html(template('tmp_type', res))
+                                    //显示对应的type内容
+                                    $('#article_type').val(type);
+                                }
+                            });
+                            //获取页面内容,显示在页面中
+                            $('#article_title').val(res.data.title);
+                            $('#article_cover').attr('src', res.data.cover);
+                            $('#article_date').val(res.data.date);
+                            $('#rich_content').val(res.data.content);
+                            // setTimeout(function() {
+                            //     tinyMCE.activeEditor.setContent(res.data.content)
+                            // }, 500);
+                        }
+                    })
+                }
+            }
+        })
+    </script>
 
 </body>
 
